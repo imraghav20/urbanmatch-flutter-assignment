@@ -30,11 +30,11 @@ class _GitHubIdFormScreenState extends State<GitHubIdFormScreen> {
             content: Text(text)),
       );
 
-  Future<bool> checkUserExists(String username) async {
+  Future<String?> checkUserExists(String username) async {
     String url = "https://api.github.com/users/$username";
     var data = await http.get(Uri.parse(url));
     var jsonData = jsonDecode(data.body);
-    return jsonData["message"] == null;
+    return jsonData["message"];
   }
 
   @override
@@ -78,8 +78,8 @@ class _GitHubIdFormScreenState extends State<GitHubIdFormScreen> {
                     displayDialog(context, "An Error Occurred",
                         "Username cannot be empty");
                   } else {
-                    bool userExists = await checkUserExists(username);
-                    if (userExists) {
+                    String? userCheckMessage = await checkUserExists(username);
+                    if (userCheckMessage == null) {
                       if (!context.mounted) {
                         return;
                       }
@@ -91,6 +91,10 @@ class _GitHubIdFormScreenState extends State<GitHubIdFormScreen> {
                               handle: username,
                             )),
                       );
+                    } else if (userCheckMessage
+                        .startsWith("API rate limit exceeded")) {
+                      displayDialog(context, "An Error Occurred",
+                          "API rate limit exceeded");
                     } else {
                       displayDialog(context, "An Error Occurred",
                           "No account was found matching that username");
