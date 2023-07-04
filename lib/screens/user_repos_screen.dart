@@ -1,12 +1,13 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:urban_match_assignment/classes/repository_class.dart';
 import 'package:http/http.dart' as http;
+import 'package:urban_match_assignment/screens/last_commit_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'dart:convert';
+import 'dart:developer';
 
 import '../widgets/preloader.dart';
 
@@ -214,7 +215,17 @@ class _UserReposScreenState extends State<UserReposScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.fade,
+                                    child: LastCommitScreen(
+                                      repoFullName: snapshot.data[index].fullName,
+                                    ),
+                                  ),
+                                );
+                              },
                               icon: const FaIcon(
                                 FontAwesomeIcons.codeCommit,
                                 color: Colors.white,

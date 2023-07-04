@@ -86,10 +86,11 @@ class _GitHubIdFormScreenState extends State<GitHubIdFormScreen> {
                       Navigator.push(
                         context,
                         PageTransition(
-                            type: PageTransitionType.fade,
-                            child: UserReposScreen(
-                              handle: username,
-                            )),
+                          type: PageTransitionType.fade,
+                          child: UserReposScreen(
+                            handle: username,
+                          ),
+                        ),
                       );
                     } else if (userCheckMessage
                         .startsWith("API rate limit exceeded")) {
