@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:urban_match_assignment/classes/repository_class.dart';
-import 'package:http/http.dart' as http;
 import 'package:urban_match_assignment/screens/last_commit_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import 'dart:convert';
 import 'dart:developer';
 
+import '../utils/api.dart';
 import '../widgets/preloader.dart';
 
 class UserReposScreen extends StatefulWidget {
@@ -21,54 +19,11 @@ class UserReposScreen extends StatefulWidget {
 }
 
 class _UserReposScreenState extends State<UserReposScreen> {
-  Future<void> _launchURL(String url) async {
-    final Uri url0 = Uri.parse(url);
-    if (!await launchUrl(url0)) {
-      throw Exception('Could not launch $url0');
-    }
-  }
-
-  Future<List<String>> _generateLanguages(String languagesUrl) async {
-    List<String> languages = [];
-    var data = await http.get(Uri.parse(languagesUrl));
-    final Map<String, dynamic> jsonData = jsonDecode(data.body);
-    final Iterable<String> langs = jsonData.keys;
-    for (final lang in langs) {
-      languages.add(lang);
-    }
-    return languages;
-  }
-
-  Future<List<Repository>?> _getRepositories() async {
-    String url = "https://api.github.com/users/${widget.handle}/repos";
-    var data = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(data.body);
-
-    if (jsonData == null) {
-      log("data is null");
-      return null;
-    }
-
-    List<Repository> repositories = [];
-    for (final repository in jsonData) {
-      Repository repo = Repository(
-          fullName: repository["full_name"],
-          htmlUrl: repository["html_url"],
-          description: repository["description"] ?? "",
-          languages: await _generateLanguages(repository["languages_url"]),
-          updatedAt: repository["updated_at"].substring(0, 10),
-          stars: repository["stargazers_count"],
-          forks: repository["forks_count"]);
-      repositories.add(repo);
-    }
-    return repositories;
-  }
-
   late Future<List<Repository>?> myFuture;
 
   @override
   void initState() {
-    myFuture = _getRepositories();
+    myFuture = getRepositories(widget.handle);
     super.initState();
   }
 
@@ -221,7 +176,8 @@ class _UserReposScreenState extends State<UserReposScreen> {
                                   PageTransition(
                                     type: PageTransitionType.fade,
                                     child: LastCommitScreen(
-                                      repoFullName: snapshot.data[index].fullName,
+                                      repoFullName:
+                                          snapshot.data[index].fullName,
                                     ),
                                   ),
                                 );
@@ -241,7 +197,7 @@ class _UserReposScreenState extends State<UserReposScreen> {
                             ),
                             ElevatedButton.icon(
                               onPressed: () {
-                                _launchURL(snapshot.data[index].htmlUrl);
+                                launchURL(snapshot.data[index].htmlUrl);
                               },
                               icon: const FaIcon(
                                 FontAwesomeIcons.arrowUpRightFromSquare,

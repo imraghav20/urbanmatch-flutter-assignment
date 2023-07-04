@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:urban_match_assignment/classes/commit_class.dart';
-import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 
-import 'dart:convert';
 import 'dart:developer';
 
+import '../utils/api.dart';
 import '../widgets/preloader.dart';
 
 class LastCommitScreen extends StatefulWidget {
@@ -19,41 +17,11 @@ class LastCommitScreen extends StatefulWidget {
 }
 
 class _LastCommitScreenState extends State<LastCommitScreen> {
-  Future<void> _launchURL(String url) async {
-    final Uri url0 = Uri.parse(url);
-    if (!await launchUrl(url0)) {
-      throw Exception('Could not launch $url0');
-    }
-  }
-
-  Future<Commit?> _getLastCommit() async {
-    String url = "https://api.github.com/repos/${widget.repoFullName}/commits";
-    var data = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(data.body);
-
-    if (jsonData == null || jsonData.length == 0) {
-      return null;
-    }
-
-    var lastCommit = jsonData[0];
-
-    Commit commit = Commit(
-        commitSha: lastCommit["sha"],
-        commitAuthor: lastCommit["commit"]["author"]["name"],
-        authorEmail: lastCommit["commit"]["author"]["email"],
-        commitDate: lastCommit["commit"]["author"]["date"],
-        commitMessage: lastCommit["commit"]["message"],
-        commentCount: lastCommit["commit"]["comment_count"],
-        htmlUrl: lastCommit["html_url"]);
-
-    return commit;
-  }
-
   late Future<Commit?> myFuture;
 
   @override
   void initState() {
-    myFuture = _getLastCommit();
+    myFuture = getLastCommit(widget.repoFullName);
     super.initState();
   }
 
@@ -262,7 +230,7 @@ class _LastCommitScreenState extends State<LastCommitScreen> {
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
-                              _launchURL(snapshot.data.htmlUrl);
+                              launchURL(snapshot.data.htmlUrl);
                             },
                             icon: const FaIcon(
                               FontAwesomeIcons.arrowUpRightFromSquare,

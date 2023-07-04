@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:http/http.dart' as http;
 
-import 'dart:convert';
-
+import '../utils/api.dart';
+import '../utils/error_handle.dart';
 import 'user_repos_screen.dart';
 
 class GitHubIdFormScreen extends StatefulWidget {
@@ -16,26 +15,6 @@ class GitHubIdFormScreen extends StatefulWidget {
 
 class _GitHubIdFormScreenState extends State<GitHubIdFormScreen> {
   final TextEditingController _usernameController = TextEditingController();
-
-  void displayDialog(context, title, text) => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-            title: Row(
-              children: [
-                const Icon(Icons.warning),
-                const SizedBox(width: 7),
-                Text(title),
-              ],
-            ),
-            content: Text(text)),
-      );
-
-  Future<String?> checkUserExists(String username) async {
-    String url = "https://api.github.com/users/$username";
-    var data = await http.get(Uri.parse(url));
-    var jsonData = jsonDecode(data.body);
-    return jsonData["message"];
-  }
 
   @override
   Widget build(BuildContext context) {
